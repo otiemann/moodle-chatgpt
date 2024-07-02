@@ -20,6 +20,9 @@ $PAGE->set_heading('Prompt Ergebnis im Kurs: ' . $course->fullname);
 // API-Aufruf an ChatGPT
 $response = call_chatgpt_api(get_config('local_chatgpt', 'apikey'), $prompt);
 
+// HTML-Formatierung der Antwort
+$html_response = '<div class="chatgpt-response" style="background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin-top: 20px;">' . $response . '</div>';
+
 // Erstellen eines neuen Moduls im Kurs
 $moduleinfo = new stdClass();
 $moduleinfo->course = $course->id;
@@ -31,23 +34,24 @@ $moduleinfo->visibleoncoursepage = 1;
 if ($response_type === 'page') {
     $moduleinfo->modulename = 'page';
     $moduleinfo->module = $DB->get_field('modules', 'id', array('name' => 'page'));
-    $moduleinfo->intro = $prompt;
+    $moduleinfo->intro = ''; // Prompt aus der Einleitung entfernt
     $moduleinfo->introformat = FORMAT_HTML;
-    $moduleinfo->content = $response;
+    $moduleinfo->content = $html_response;
     $moduleinfo->contentformat = FORMAT_HTML;
-    $moduleinfo->printintro = 1;
+    $moduleinfo->printintro = 0; // Einleitung nicht anzeigen
     $moduleinfo->printlastmodified = 1;
 } elseif ($response_type === 'label') {
     $moduleinfo->modulename = 'label';
     $moduleinfo->module = $DB->get_field('modules', 'id', array('name' => 'label'));
-    $moduleinfo->intro = $response; // Für Labels wird der Inhalt in 'intro' gespeichert
+    $moduleinfo->intro = $html_response;
     $moduleinfo->introformat = FORMAT_HTML;
 }
 
 $moduleinfo = add_moduleinfo($moduleinfo, $course);
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading('Prompt Ergebnis wurde gespeichert.');
+echo $OUTPUT->heading('Prompt-Ergebnis wurde gespeichert.');
+echo $html_response; // Nur die formatierte Antwort anzeigen
 echo $OUTPUT->continue_button(new moodle_url('/course/view.php', array('id' => $courseid)));
 echo $OUTPUT->footer();
 
@@ -80,5 +84,35 @@ function call_chatgpt_api($apikey, $prompt) {
     }
 
     $response = json_decode($result, true);
-    return $response['choices'][0]['message']['content'];
+    $content = $response['choices'][0]['message']['content'];
+
+    // Verbesserte Formatierung für Code-Blöcke mit sichtbarem Sprachnamen
+    $content = preg_replace_callback('/```(\w+)?\s*([\s\S]*?)```/', function($matches) {
+        $language = !empty($matches[1]) ? $matches[1] : 'plaintext';
+        $code = trim($matches[2]);
+        return "<div class='code-block' style='margin-top: 20px; margin-bottom: 20px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        overflow: hidden;'>
+                    <div class='language-label' style='background-color: #f0f0f0;
+                    padding: 5px 10px;
+                    font-weight: bold;
+                    border-bottom: 1px solid #ddd;
+                    display: inline-block;
+                    margin-bottom: 10px;
+                    border-radius: 0 0 4px 4px;
+                }'>{$language}</div>
+                    <pre style='margin: 0;
+                    padding: 10px;
+                    background-color: #f8f8f8;'><code class='language-{$language}'>{$code}</code></pre>
+                </div>";
+    }, $content);
+
+    $content = preg_replace('/\*\*(.*?)\*\*/', '<strong>$1</strong>', $content);
+
+    $content = preg_replace('/(\s+)-\s+([\w\s]+):/', "\n\n- $2:", $content);
+
+    $content = preg_replace('/(\s*)(\d+\.)\s+([\w\s]+):/', "\n\n$2 $3:", $content);
+
+    return $content;
 }
