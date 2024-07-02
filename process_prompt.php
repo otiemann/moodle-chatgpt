@@ -6,6 +6,7 @@ require_login();
 
 $courseid = required_param('courseid', PARAM_INT);
 $prompt = required_param('prompt', PARAM_TEXT);
+$module_name = optional_param('module_name', '', PARAM_TEXT);
 
 $course = get_course($courseid);
 $context = context_course::instance($courseid);
@@ -26,7 +27,7 @@ $moduleinfo->section = 0; // Abschnitt 0 ist der allgemeine Bereich
 $moduleinfo->visible = 1;
 $moduleinfo->visibleoncoursepage = 1;
 $moduleinfo->course = $course->id;
-$moduleinfo->name = $prompt;
+$moduleinfo->name = empty($module_name) ? substr($prompt, 0, 50) : $module_name; // Verwende den eingegebenen Namen oder die ersten 50 Zeichen des Prompts
 $moduleinfo->intro = $prompt;
 $moduleinfo->introformat = FORMAT_HTML;
 $moduleinfo->content = $response; // Hier wird die Response von ChatGPT gespeichert
