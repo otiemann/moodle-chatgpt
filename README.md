@@ -1,8 +1,6 @@
 # ChatGPT #
 
-This is a Moodle plugin for using ChatGPT in Moodle. It asks for a prompt and
-returns the response from ChatGPT. The response is then saved to the database
-and displayed on the page.
+This is a Moodle plugin for using ChatGPT in Moodle. It lets the user choose if a page or a label should be created and then asks for a prompt and returns the response from ChatGPT. The response is then saved to the database and displayed on the page.
 
 ## Installing via uploaded ZIP file ##
 
