@@ -20,6 +20,6 @@ if ($hassiteconfig) {
 // Neue Seite für die Eingabe des Prompts
 $ADMIN->add('local_chatgpt', new admin_externalpage(
     'local_chatgpt_prompt',
-    'Prompt Eingeben',
+    'ChatGPT-Integration',
     new moodle_url('/local/chatgpt/prompt.php')
 ));
