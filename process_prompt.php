@@ -26,11 +26,13 @@ $moduleinfo->section = 0; // Abschnitt 0 ist der allgemeine Bereich
 $moduleinfo->visible = 1;
 $moduleinfo->visibleoncoursepage = 1;
 $moduleinfo->course = $course->id;
-$moduleinfo->name = 'Prompt Ergebnis';
+$moduleinfo->name = $prompt;
 $moduleinfo->intro = $prompt;
 $moduleinfo->introformat = FORMAT_HTML;
 $moduleinfo->content = $response; // Hier wird die Response von ChatGPT gespeichert
 $moduleinfo->contentformat = FORMAT_HTML;
+$moduleinfo->printintro = 1; // oder 0, je nach Bedarf
+$moduleinfo->printlastmodified = 1; // oder 0, je nach Bedarf
 
 $moduleinfo = add_moduleinfo($moduleinfo, $course);
 
@@ -46,7 +48,7 @@ function call_chatgpt_api($apikey, $prompt) {
         'messages' => array(
             array('role' => 'user', 'content' => $prompt)
         ),
-        'max_tokens' => 500,
+        'max_tokens' => 1000,
     );
 
     $options = array(
