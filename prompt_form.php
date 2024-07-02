@@ -18,7 +18,12 @@ echo '<form method="post" action="process_prompt.php">';
 echo '<label for="module_name">Modulname (optional):</label><br>';
 echo '<input type="text" id="module_name" name="module_name"><br><br>';
 echo '<label for="prompt">Prompt:</label><br>';
-echo '<textarea name="prompt" id="prompt" rows="10" cols="50"></textarea><br>';
+echo '<textarea name="prompt" id="prompt" rows="10" cols="50"></textarea><br><br>';
+echo '<label for="response_type">Antworttyp:</label><br>';
+echo '<select name="response_type" id="response_type">';
+echo '<option value="page">Textseite</option>';
+echo '<option value="label">Textfeld</option>';
+echo '</select><br><br>';
 echo '<input type="hidden" name="courseid" value="' . $courseid . '">'; // Kurs-ID im Formular übergeben
 echo '<input type="submit" value="Absenden">';
 echo '</form>';

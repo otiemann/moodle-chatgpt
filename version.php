@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_chatgpt';
 $plugin->release = '0.1.0';
-$plugin->version = 2024070237;
+$plugin->version = 2024070239;
 $plugin->requires = 2022112800;
 $plugin->maturity = MATURITY_ALPHA;
 

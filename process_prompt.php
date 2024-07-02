@@ -7,6 +7,7 @@ require_login();
 $courseid = required_param('courseid', PARAM_INT);
 $prompt = required_param('prompt', PARAM_TEXT);
 $module_name = optional_param('module_name', '', PARAM_TEXT);
+$response_type = required_param('response_type', PARAM_ALPHA);
 
 $course = get_course($courseid);
 $context = context_course::instance($courseid);
@@ -19,21 +20,29 @@ $PAGE->set_heading('Prompt Ergebnis im Kurs: ' . $course->fullname);
 // API-Aufruf an ChatGPT
 $response = call_chatgpt_api(get_config('local_chatgpt', 'apikey'), $prompt);
 
-// Erstellen einer neuen Textseite im Kurs
+// Erstellen eines neuen Moduls im Kurs
 $moduleinfo = new stdClass();
-$moduleinfo->modulename = 'page';
-$moduleinfo->module = $DB->get_field('modules', 'id', array('name' => 'page'));
-$moduleinfo->section = 0; // Abschnitt 0 ist der allgemeine Bereich
+$moduleinfo->course = $course->id;
+$moduleinfo->name = empty($module_name) ? substr($prompt, 0, 50) : $module_name;
+$moduleinfo->section = 0;
 $moduleinfo->visible = 1;
 $moduleinfo->visibleoncoursepage = 1;
-$moduleinfo->course = $course->id;
-$moduleinfo->name = empty($module_name) ? substr($prompt, 0, 50) : $module_name; // Verwende den eingegebenen Namen oder die ersten 50 Zeichen des Prompts
-$moduleinfo->intro = $prompt;
-$moduleinfo->introformat = FORMAT_HTML;
-$moduleinfo->content = $response; // Hier wird die Response von ChatGPT gespeichert
-$moduleinfo->contentformat = FORMAT_HTML;
-$moduleinfo->printintro = 1; // oder 0, je nach Bedarf
-$moduleinfo->printlastmodified = 1; // oder 0, je nach Bedarf
+
+if ($response_type === 'page') {
+    $moduleinfo->modulename = 'page';
+    $moduleinfo->module = $DB->get_field('modules', 'id', array('name' => 'page'));
+    $moduleinfo->intro = $prompt;
+    $moduleinfo->introformat = FORMAT_HTML;
+    $moduleinfo->content = $response;
+    $moduleinfo->contentformat = FORMAT_HTML;
+    $moduleinfo->printintro = 1;
+    $moduleinfo->printlastmodified = 1;
+} elseif ($response_type === 'label') {
+    $moduleinfo->modulename = 'label';
+    $moduleinfo->module = $DB->get_field('modules', 'id', array('name' => 'label'));
+    $moduleinfo->intro = $response; // Für Labels wird der Inhalt in 'intro' gespeichert
+    $moduleinfo->introformat = FORMAT_HTML;
+}
 
 $moduleinfo = add_moduleinfo($moduleinfo, $course);
 
