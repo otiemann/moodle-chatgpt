@@ -43,7 +43,7 @@ if ($response_type === 'page') {
 } elseif ($response_type === 'label') {
     $moduleinfo->modulename = 'label';
     $moduleinfo->module = $DB->get_field('modules', 'id', array('name' => 'label'));
-    $moduleinfo->intro = $html_response;
+    $moduleinfo->intro = '<div class="chatgpt-label" style="background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin: 10px 0; border: 1px solid #ddd;">' . $html_response . '</div>';
     $moduleinfo->introformat = FORMAT_HTML;
 }
 
